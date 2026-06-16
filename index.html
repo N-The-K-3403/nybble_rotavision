@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RotaVision — Dados que você sente.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --burn:#C94F1E;
+  --burn2:#E8643A;
+  --burn3:#9E3C14;
+  --off:#F5F0E8;
+  --off2:#EAE4D8;
+  --off3:#D8D0C0;
+  --graph:#1C1C1E;
+  --graph2:#3A3A3C;
+  --graph3:#6E6E73;
+  --moss:#4A7C59;
+  --moss2:#5E9B70;
+  --amber:#C88A2E;
+  --paper:#FAF7F2;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--off);color:var(--graph);overflow-x:hidden}
+
+/* ── GRAIN OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:9999;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.045;
+  mix-blend-mode:multiply;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3rem;
+  background:rgba(245,240,232,0.82);
+  backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom:1px solid rgba(28,28,30,0.07);
+  transition:padding .3s ease;
+}
+.nav-brand{display:flex;align-items:baseline;gap:.9rem}
+.nav-logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:1.3rem;
+  letter-spacing:-.04em;color:var(--graph);
+}
+.nav-logo b{color:var(--burn);font-weight:700}
+.nav-sep{color:var(--off3);font-weight:300;font-size:1rem}
+.nav-by{
+  font-size:.7rem;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--graph3);
+}
+nav ul{list-style:none;display:flex;gap:2.2rem}
+nav a{
+  text-decoration:none;font-size:.82rem;font-weight:500;
+  color:var(--graph2);letter-spacing:.01em;
+  transition:color .2s;
+}
+nav a:hover{color:var(--burn)}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:7rem 3rem 4rem;
+  position:relative;overflow:hidden;
+  background:var(--off);
+}
+@media(max-width:900px){#hero{grid-template-columns:1fr}}
+
+/* horizontal rule lines bg */
+#hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 47px,
+    rgba(28,28,30,.045) 47px,
+    rgba(28,28,30,.045) 48px
+  );
+  pointer-events:none;
+}
+
+.hero-left{position:relative;z-index:2}
+.hero-right{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.hero-eyebrow{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--burn);margin-bottom:2rem;
+  display:flex;align-items:center;gap:.8rem;
+  opacity:0;transform:translateY(8px);
+  animation:fadeUp .6s .2s ease forwards;
+}
+.hero-eyebrow::before{
+  content:'';display:inline-block;
+  width:2.5rem;height:1.5px;background:var(--burn);
+  animation:wideIn .8s .4s ease forwards;
+  transform:scaleX(0);transform-origin:left;
+}
+@keyframes wideIn{to{transform:scaleX(1)}}
+
+h1.hero-h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(3.2rem,7.5vw,6rem);
+  font-weight:700;line-height:.93;
+  letter-spacing:-.05em;color:var(--graph);
+  margin-bottom:2.2rem;
+}
+.h1-line{
+  display:block;overflow:hidden;
+}
+.h1-inner{
+  display:block;
+  transform:translateY(110%);
+  animation:slideUp .8s ease forwards;
+}
+.h1-line:nth-child(1) .h1-inner{animation-delay:.3s}
+.h1-line:nth-child(2) .h1-inner{animation-delay:.45s}
+.h1-line:nth-child(3) .h1-inner{animation-delay:.6s}
+@keyframes slideUp{to{transform:translateY(0)}}
+
+.h1-accent{
+  color:var(--burn);
+  position:relative;display:inline-block;
+}
+/* stamp ink underline */
+.h1-accent::after{
+  content:'';
+  position:absolute;left:0;bottom:-3px;right:0;
+  height:4px;background:var(--burn);
+  transform:scaleX(0);transform-origin:left;
+  animation:wideIn .9s 1.2s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+.hero-sub{
+  font-size:1rem;font-weight:400;
+  color:var(--graph3);max-width:400px;
+  line-height:1.7;margin-bottom:2.8rem;
+  opacity:0;transform:translateY(10px);
+  animation:fadeUp .7s .9s ease forwards;
+}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+
+.hero-cta-row{
+  display:flex;align-items:center;gap:1.5rem;
+  opacity:0;animation:fadeUp .7s 1.1s ease forwards;
+}
+.hero-cta{
+  display:inline-flex;align-items:center;gap:.7rem;
+  background:var(--graph);color:var(--off);
+  padding:.9rem 2rem;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:600;font-size:.88rem;
+  letter-spacing:.02em;text-decoration:none;border:none;cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:transform .2s;
+}
+.hero-cta::before{
+  content:'';position:absolute;inset:0;
+  background:var(--burn);
+  transform:translateX(-101%);
+  transition:transform .35s cubic-bezier(.16,1,.3,1);
+}
+.hero-cta:hover::before{transform:translateX(0)}
+.hero-cta:hover{transform:translateY(-2px)}
+.hero-cta span,.hero-cta svg{position:relative;z-index:1}
+
+.hero-note{
+  font-size:.75rem;color:var(--graph3);
+  font-style:italic;
+}
+
+/* big stamp word right side */
+.hero-stamp-word{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(5rem,14vw,11rem);
+  font-weight:700;letter-spacing:-.07em;
+  line-height:1;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(28,28,30,.09);
+  user-select:none;pointer-events:none;
+  text-align:center;
+  opacity:0;animation:fadeUp .9s 1.3s ease forwards;
+}
+
+/* canvas */
+#route-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:1;opacity:.22;
+}
+
+/* ── SECTION ── */
+section{padding:7rem 3rem}
+@media(max-width:600px){section{padding:4rem 1.25rem}}
+
+.sec-eyebrow{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.67rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--burn);margin-bottom:.8rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.sec-eyebrow::before{
+  content:'';display:inline-block;
+  width:1.5rem;height:1.5px;background:currentColor;
+}
+.sec-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,4.5vw,3.2rem);
+  font-weight:700;letter-spacing:-.04em;
+  line-height:1.05;margin-bottom:4rem;color:var(--graph);
+}
+
+/* ── KPI ── */
+#kpis{background:var(--graph);padding:7rem 3rem}
+#kpis .sec-eyebrow{color:var(--burn2)}
+#kpis .sec-eyebrow::before{background:var(--burn2)}
+#kpis .sec-title{color:var(--off)}
+
+.kpi-wrap{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.05);
+}
+
+.kpi-card{
+  background:var(--graph);
+  padding:2.2rem 1.8rem 2rem;
+  position:relative;overflow:hidden;
+  transition:background .25s;
+}
+.kpi-card:hover{background:#28282A}
+
+/* hatching texture on kpi */
+.kpi-card::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    -45deg,
+    transparent,transparent 8px,
+    rgba(255,255,255,.012) 8px,rgba(255,255,255,.012) 9px
+  );
+  pointer-events:none;
+}
+
+.kpi-bar{
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--burn),var(--burn2));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .9s cubic-bezier(.16,1,.3,1);
+}
+.kpi-card.lit .kpi-bar{transform:scaleX(1)}
+
+.kpi-label{
+  font-size:.68rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(245,240,232,.38);margin-bottom:1.2rem;
+}
+.kpi-num{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:3.4rem;font-weight:700;
+  letter-spacing:-.05em;line-height:1;
+  color:var(--off);margin-bottom:.55rem;
+}
+.kpi-num.fire{color:var(--burn2)}
+.kpi-num.good{color:#6DB887}
+.kpi-detail{font-size:.76rem;color:rgba(245,240,232,.32)}
+
+/* ── DASHBOARD ── */
+#dashboard{background:var(--paper)}
+.dash-grid{
+  display:grid;
+  grid-template-columns:3fr 2fr;
+  gap:1.5rem;
+}
+@media(max-width:960px){.dash-grid{grid-template-columns:1fr}}
+
+.dash-card{
+  background:var(--off);
+  border:1px solid rgba(28,28,30,.08);
+  padding:2rem;
+  position:relative;overflow:hidden;
+}
+/* subtle hatching on cards */
+.dash-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(
+    -55deg,
+    transparent,transparent 14px,
+    rgba(28,28,30,.018) 14px,rgba(28,28,30,.018) 15px
+  );
+}
+
+.dash-card.full{grid-column:1/-1}
+
+.card-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--graph3);margin-bottom:1.5rem;
+  padding-bottom:.75rem;
+  border-bottom:1px solid rgba(28,28,30,.08);
+  position:relative;z-index:1;
+}
+
+/* ── BAR CHART custom ── */
+.bars-chart{display:flex;flex-direction:column;gap:.7rem;position:relative;z-index:1}
+.bar-row{display:flex;align-items:center;gap:.8rem}
+.bar-id{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;font-weight:700;
+  color:var(--graph3);width:2.2rem;flex-shrink:0;
+}
+.bar-pair{flex:1;display:flex;flex-direction:column;gap:3px}
+.bar-track{
+  height:11px;background:rgba(28,28,30,.07);
+  position:relative;overflow:hidden;
+}
+.bar-fill{
+  height:100%;width:0;
+  transition:width 1.1s cubic-bezier(.16,1,.3,1);
+  position:absolute;left:0;top:0;
+}
+.bar-fill.prazo{background:rgba(74,124,89,.75)}
+.bar-fill.real{background:var(--burn)}
+.bar-fill.real.ok{background:rgba(74,124,89,.5)}
+
+.bar-labels{
+  display:flex;justify-content:flex-end;
+  font-size:.63rem;color:var(--graph3);gap:.4rem;
+}
+.bar-delta{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.68rem;font-weight:700;
+  width:3.2rem;flex-shrink:0;text-align:right;
+}
+.delta-pos{color:var(--burn)}
+.delta-neg{color:var(--moss)}
+.delta-zero{color:var(--graph3)}
+
+.bar-legend{
+  display:flex;gap:1.2rem;margin-bottom:1rem;
+  position:relative;z-index:1;
+}
+.legend-item{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.72rem;color:var(--graph3);
+}
+.legend-sq{width:10px;height:10px;flex-shrink:0}
+
+/* ── RANKING ── */
+.ranking{display:flex;flex-direction:column;gap:1.1rem;position:relative;z-index:1}
+.rank-row{display:flex;align-items:center;gap:.9rem}
+.rank-n{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.75rem;font-weight:700;
+  color:rgba(28,28,30,.2);width:1.2rem;flex-shrink:0;
+}
+.rank-info{flex:1}
+.rank-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.88rem;font-weight:700;
+  color:var(--graph);margin-bottom:.35rem;
+}
+.rank-track{height:6px;background:rgba(28,28,30,.08);position:relative;overflow:hidden}
+.rank-fill{height:100%;width:0;transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+.rank-pct{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.75rem;font-weight:700;
+  flex-shrink:0;width:3rem;text-align:right;
+}
+
+/* ── MAPA ── */
+#mapa-section{background:var(--off)}
+
+.mapa-wrap{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:start;
+}
+@media(max-width:840px){.mapa-wrap{grid-template-columns:1fr}}
+
+.mapa-svg-box{position:relative}
+#mapa-svg{width:100%;max-width:440px}
+
+.mapa-legend-list{
+  display:flex;flex-direction:column;gap:1.5rem;
+  padding-top:.5rem;
+}
+.mapa-legend-item{
+  display:flex;gap:1rem;align-items:flex-start;
+  opacity:0;transform:translateX(16px);
+  transition:opacity .6s ease,transform .6s ease;
+}
+.mapa-legend-item.in{opacity:1;transform:none}
+.mapa-dot{
+  width:14px;height:14px;border-radius:50%;
+  flex-shrink:0;margin-top:3px;
+}
+.mapa-legend-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.95rem;font-weight:700;
+  color:var(--graph);margin-bottom:.15rem;
+}
+.mapa-legend-stat{font-size:.78rem;color:var(--graph3);line-height:1.5}
+.mapa-legend-bar{
+  height:3px;background:rgba(28,28,30,.08);
+  margin-top:.4rem;position:relative;overflow:hidden;
+}
+.mapa-legend-fill{height:100%;width:0;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+
+/* ── SCORE GAUGES ── */
+#score{background:var(--graph)}
+#score .sec-eyebrow{color:var(--burn2)}
+#score .sec-eyebrow::before{background:var(--burn2)}
+#score .sec-title{color:var(--off)}
+
+.gauge-wrap{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.04);
+}
+@media(max-width:760px){.gauge-wrap{grid-template-columns:1fr}}
+
+.gauge-card{
+  background:var(--graph);
+  padding:2.5rem 2rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.gauge-card:hover{background:#242426}
+
+/* texture */
+.gauge-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(
+    45deg,
+    transparent,transparent 10px,
+    rgba(255,255,255,.012) 10px,rgba(255,255,255,.012) 11px
+  );
+}
+
+.gc-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.2rem;font-weight:700;
+  letter-spacing:-.03em;color:var(--off);
+  margin-bottom:.25rem;position:relative;z-index:1;
+}
+.gc-sub{
+  font-size:.72rem;color:rgba(245,240,232,.35);
+  margin-bottom:2rem;position:relative;z-index:1;
+}
+
+.gauge-svg{display:block;margin:0 auto;position:relative;z-index:1}
+.gauge-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:14;stroke-linecap:round}
+.gauge-fill{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1)}
+.gauge-needle-line{transition:transform 1.6s cubic-bezier(.16,1,.3,1);transform-origin:100px 106px}
+
+.gc-score{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2.6rem;font-weight:700;
+  letter-spacing:-.05em;
+  margin-top:1.2rem;margin-bottom:.4rem;
+  position:relative;z-index:1;
+}
+.gc-status{
+  display:inline-block;
+  padding:.3rem 1rem;
+  font-size:.65rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  position:relative;z-index:1;
+}
+
+/* ── TABELA ── */
+#tabela{background:var(--off2)}
+
+.filter-row{
+  display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:2rem;
+}
+.fbtn{
+  padding:.38rem .9rem;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.72rem;font-weight:600;letter-spacing:.06em;
+  border:1.5px solid rgba(28,28,30,.14);
+  background:transparent;cursor:pointer;color:var(--graph3);
+  transition:all .15s;
+}
+.fbtn:hover,.fbtn.on{background:var(--graph);color:var(--off);border-color:var(--graph)}
+.fbtn.burn.on{background:var(--burn);border-color:var(--burn);color:#fff}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead tr{border-bottom:2px solid var(--graph)}
+th{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.65rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--graph3);padding:.7rem 1rem;
+  text-align:left;cursor:pointer;user-select:none;
+  white-space:nowrap;
+}
+th:hover{color:var(--burn)}
+tbody tr{border-bottom:1px solid rgba(28,28,30,.07);transition:background .12s}
+tbody tr:hover{background:rgba(201,79,30,.05)}
+td{padding:.85rem 1rem;color:var(--graph2);vertical-align:middle}
+.td-id{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:.8rem;color:var(--graph);
+}
+.td-trans{font-weight:600;color:var(--graph)}
+.delta-cell{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:.9rem;
+}
+
+.badge{
+  display:inline-block;padding:.22rem .65rem;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.62rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.b-crit{background:#3D1008;color:#F4866A}
+.b-high{background:rgba(201,79,30,.12);color:var(--burn3)}
+.b-watch{background:rgba(180,150,0,.1);color:#7A6200}
+.b-ok{background:rgba(74,124,89,.12);color:#2D6040}
+
+/* ── TEAM ── */
+#time{background:var(--off);border-top:1px solid rgba(28,28,30,.08)}
+.team-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1px;
+  background:rgba(28,28,30,.08);
+  border:1px solid rgba(28,28,30,.08);
+  margin-top:0;
+}
+.tc{
+  background:var(--off);
+  padding:2.2rem 1.8rem;
+  position:relative;overflow:hidden;
+  transition:background .22s;
+}
+.tc:hover{background:var(--off2)}
+.tc-init{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:3rem;font-weight:700;
+  letter-spacing:-.06em;color:var(--burn);
+  line-height:1;margin-bottom:1.1rem;
+  opacity:.85;
+}
+.tc-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1rem;font-weight:700;
+  color:var(--graph);margin-bottom:.2rem;
+}
+.tc-role{font-size:.76rem;color:var(--graph3)}
+.tc::after{
+  content:attr(data-i);
+  position:absolute;right:-1rem;bottom:-2rem;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:7rem;font-weight:700;
+  color:rgba(201,79,30,.05);letter-spacing:-.08em;
+  pointer-events:none;user-select:none;
+  line-height:1;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:#111113;
+  padding:2.8rem 3rem;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+  border-top:1px solid rgba(255,255,255,.04);
+}
+.f-logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;font-size:1rem;
+  color:rgba(245,240,232,.5);letter-spacing:-.03em;
+}
+.f-logo b{color:var(--burn)}
+.f-right{
+  font-size:.72rem;color:rgba(245,240,232,.2);
+  text-align:right;line-height:1.7;
+}
+.f-tagline{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;font-weight:600;
+  color:rgba(245,240,232,.35);
+  letter-spacing:.04em;margin-top:.2rem;
+}
+
+/* ── REVEAL ── */
+.rv{
+  opacity:0;transform:translateY(28px);
+  transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);
+}
+.rv.in{opacity:1;transform:none}
+.rv[data-d="1"]{transition-delay:.1s}
+.rv[data-d="2"]{transition-delay:.2s}
+.rv[data-d="3"]{transition-delay:.3s}
+.rv[data-d="4"]{transition-delay:.4s}
+
+@media(max-width:600px){
+  nav ul{display:none}
+  nav{padding:.9rem 1.25rem}
+  footer{flex-direction:column}
+  .f-right{text-align:left}
+  .gauge-wrap{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <span class="nav-logo">Rota<b>Vision</b></span>
+    <span class="nav-sep">·</span>
+    <span class="nav-by">by Nybble</span>
+  </div>
+  <ul>
+    <li><a href="#kpis">Indicadores</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#mapa-section">Regiões</a></li>
+    <li><a href="#score">Score de Risco</a></li>
+    <li><a href="#tabela">Entregas</a></li>
+    <li><a href="#time">Time</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="route-canvas"></canvas>
+
+  <div class="hero-left">
+    <p class="hero-eyebrow">Inteligência Logística · Brasil</p>
+    <h1 class="hero-h1">
+      <span class="h1-line"><span class="h1-inner">Dados</span></span>
+      <span class="h1-line"><span class="h1-inner">que você</span></span>
+      <span class="h1-line"><span class="h1-inner"><span class="h1-accent">sente.</span></span></span>
+    </h1>
+    <p class="hero-sub">RotaVision transforma registros de entrega em decisão. Atrasos viram prioridade. Regiões críticas viram ação.</p>
+    <div class="hero-cta-row">
+      <a href="#kpis" class="hero-cta">
+        <span>Ver painel</span>
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M2.5 7.5h10m-4.5-4.5 4.5 4.5-4.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <span class="hero-note">10 entregas · 5 regiões · 3 transportadoras</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <p class="hero-stamp-word">RV</p>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section id="kpis">
+  <p class="sec-eyebrow rv">Visão Geral</p>
+  <h2 class="sec-title rv">O que os dados revelam.</h2>
+  <div class="kpi-wrap">
+    <div class="kpi-card rv" data-d="1">
+      <div class="kpi-bar"></div>
+      <p class="kpi-label">Total de Entregas</p>
+      <p class="kpi-num" id="k0">0</p>
+      <p class="kpi-detail">registros analisados</p>
+    </div>
+    <div class="kpi-card rv" data-d="2">
+      <div class="kpi-bar"></div>
+      <p class="kpi-label">Entregas Atrasadas</p>
+      <p class="kpi-num fire" id="k1">0</p>
+      <p class="kpi-detail" id="k1s">—</p>
+    </div>
+    <div class="kpi-card rv" data-d="3">
+      <div class="kpi-bar"></div>
+      <p class="kpi-label">Maior Atraso</p>
+      <p class="kpi-num fire" id="k2">0<span style="font-size:1.5rem;opacity:.5"> d</span></p>
+      <p class="kpi-detail" id="k2s">—</p>
+    </div>
+    <div class="kpi-card rv" data-d="4">
+      <div class="kpi-bar"></div>
+      <p class="kpi-label">No Prazo ou Antes</p>
+      <p class="kpi-num good" id="k3">0</p>
+      <p class="kpi-detail">entrega(s) sem atraso</p>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <p class="sec-eyebrow rv">Análise Visual</p>
+  <h2 class="sec-title rv">Prazo prometido vs. realidade.</h2>
+  <div class="dash-grid">
+
+    <!-- custom bar chart -->
+    <div class="dash-card rv">
+      <p class="card-title">Prazo prometido vs. dias reais — por entrega</p>
+      <div class="bar-legend">
+        <span class="legend-item"><span class="legend-sq" style="background:rgba(74,124,89,.75)"></span>Prazo</span>
+        <span class="legend-item"><span class="legend-sq" style="background:var(--burn)"></span>Dias reais (atrasado)</span>
+        <span class="legend-item"><span class="legend-sq" style="background:rgba(74,124,89,.45)"></span>Dias reais (no prazo)</span>
+      </div>
+      <div class="bars-chart" id="bars-chart"></div>
+    </div>
+
+    <!-- ranking -->
+    <div class="dash-card rv" data-d="2">
+      <p class="card-title">Ranking por índice de atraso</p>
+      <div class="ranking" id="ranking"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MAPA -->
+<section id="mapa-section">
+  <p class="sec-eyebrow rv">Análise Regional</p>
+  <h2 class="sec-title rv">Onde a rota falha.</h2>
+  <div class="mapa-wrap">
+    <div class="mapa-svg-box rv">
+      <svg id="mapa-svg" viewBox="0 0 500 540" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="mapa-legend-list" id="mapa-legend"></div>
+  </div>
+</section>
+
+<!-- SCORE -->
+<section id="score">
+  <p class="sec-eyebrow rv">Score de Risco</p>
+  <h2 class="sec-title rv">Quem está em alerta.</h2>
+  <div class="gauge-wrap" id="gauge-wrap"></div>
+</section>
+
+<!-- TABELA -->
+<section id="tabela">
+  <p class="sec-eyebrow rv">Priorização Operacional</p>
+  <h2 class="sec-title rv">Entregas ordenadas por gravidade.</h2>
+  <div class="filter-row">
+    <button class="fbtn burn on" data-f="all">Todas</button>
+    <button class="fbtn" data-f="crit">Crítico</button>
+    <button class="fbtn" data-f="high">Alto risco</button>
+    <button class="fbtn" data-f="ok">No prazo</button>
+    <button class="fbtn" data-t="FlashLog">FlashLog</button>
+    <button class="fbtn" data-t="RotaMax">RotaMax</button>
+    <button class="fbtn" data-t="ViaCargo">ViaCargo</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-s="id">ID</th>
+          <th data-s="trans">Transportadora</th>
+          <th data-s="regiao">Região</th>
+          <th data-s="prazo">Prazo</th>
+          <th data-s="real">Real</th>
+          <th data-s="delta">Δ Atraso</th>
+          <th data-s="pct">Desvio %</th>
+          <th data-s="status">Criticidade</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TIME -->
+<section id="time">
+  <p class="sec-eyebrow rv">Time Nybble · ETEC Carapicuíba</p>
+  <h2 class="sec-title rv" style="margin-bottom:2.5rem">Quatro pessoas.<br>Uma solução.</h2>
+  <div class="team-grid">
+    <div class="tc rv" data-i="E">
+      <p class="tc-init">E.</p>
+      <p class="tc-name">Elias Moraes</p>
+      <p class="tc-role">Data Engineer</p>
+    </div>
+    <div class="tc rv" data-i="I" data-d="1">
+      <p class="tc-init">I.</p>
+      <p class="tc-name">Isabelly Miranda</p>
+      <p class="tc-role">UX & Frontend</p>
+    </div>
+    <div class="tc rv" data-i="I" data-d="2">
+      <p class="tc-init">I.</p>
+      <p class="tc-name">Isabela Medeiros</p>
+      <p class="tc-role">Business Intelligence</p>
+    </div>
+    <div class="tc rv" data-i="J" data-d="3">
+      <p class="tc-init">J.</p>
+      <p class="tc-name">Jullia Mendes</p>
+      <p class="tc-role">Product & Analytics</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="f-logo">Rota<b>Vision</b> <span style="opacity:.3;font-weight:300;margin:0 .4rem">·</span> by Nybble</div>
+    <p class="f-tagline">Dados que você sente.</p>
+  </div>
+  <div class="f-right">
+    ETEC Carapicuíba · AMT01 — Visualização de Dados<br>
+    Elias · Isabelly · Isabela · Jullia
+  </div>
+</footer>
+
+<script>
+/* ─── DATA ─── */
+const D=[
+  {id:301,trans:"RotaMax",  regiao:"Sudeste",     prazo:3,real:7},
+  {id:302,trans:"ViaCargo", regiao:"Sul",          prazo:5,real:5},
+  {id:303,trans:"FlashLog", regiao:"Nordeste",     prazo:4,real:9},
+  {id:304,trans:"RotaMax",  regiao:"Norte",        prazo:6,real:4},
+  {id:305,trans:"ViaCargo", regiao:"Centro-Oeste", prazo:2,real:6},
+  {id:306,trans:"FlashLog", regiao:"Sul",          prazo:5,real:12},
+  {id:307,trans:"RotaMax",  regiao:"Sul",          prazo:6,real:9},
+  {id:308,trans:"ViaCargo", regiao:"Sudeste",      prazo:3,real:4},
+  {id:309,trans:"FlashLog", regiao:"Norte",        prazo:5,real:5},
+  {id:310,trans:"ViaCargo", regiao:"Nordeste",     prazo:4,real:8},
+];
+D.forEach(e=>{
+  e.delta=e.real-e.prazo;
+  e.pct=e.prazo>0?Math.round((e.delta/e.prazo)*100):0;
+  if(e.delta>5) e.status="crit";
+  else if(e.delta>0) e.status="high";
+  else if(e.delta===0) e.status="watch";
+  else e.status="ok";
+});
+
+/* ─── HERO CANVAS ─── */
+(()=>{
+  const cv=document.getElementById('route-canvas');
+  const ctx=cv.getContext('2d');
+  let W,H,pts=[],segs=[];
+  const POS=[[.22,.22],[.48,.16],[.73,.28],[.14,.48],[.5,.42],[.78,.52],[.33,.65],[.62,.7],[.2,.8],[.54,.86],[.68,.19],[.4,.33],[.85,.36],[.28,.56],[.7,.62]];
+  function init(){
+    W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;
+    pts=POS.map(([rx,ry])=>({x:rx*W,y:ry*H,p:Math.random()*Math.PI*2,sp:.016+Math.random()*.014,r:2+Math.random()*1.8}));
+    segs=[];
+    pts.forEach((a,i)=>pts.forEach((b,j)=>{
+      if(j<=i)return;
+      if(Math.hypot(a.x-b.x,a.y-b.y)<W*.34) segs.push({a,b,t:Math.random(),sp:.0028+Math.random()*.0035});
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    segs.forEach(s=>{
+      s.t+=s.sp;if(s.t>1.3)s.t=-.3;
+      const t=Math.max(0,Math.min(1,s.t));
+      ctx.beginPath();ctx.moveTo(s.a.x,s.a.y);ctx.lineTo(s.b.x,s.b.y);
+      ctx.strokeStyle='rgba(28,28,30,.07)';ctx.lineWidth=.8;ctx.stroke();
+      ctx.beginPath();ctx.arc(s.a.x+(s.b.x-s.a.x)*t,s.a.y+(s.b.y-s.a.y)*t,3.2,0,6.28);
+      ctx.fillStyle='rgba(201,79,30,.6)';ctx.fill();
+    });
+    pts.forEach(p=>{
+      p.p+=p.sp;
+      const sc=.65+Math.sin(p.p)*.35;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*sc,0,6.28);
+      ctx.fillStyle='rgba(28,28,30,.3)';ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  init();draw();
+  window.addEventListener('resize',init);
+})();
+
+/* ─── SCROLL REVEAL ─── */
+const RV=document.querySelectorAll('.rv');
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)}});
+},{threshold:.12});
+RV.forEach(el=>obs.observe(el));
+
+/* ─── COUNTER ─── */
+function countUp(el,target,dur=1100,suffix=''){
+  const start=performance.now();
+  const run=now=>{
+    const t=Math.min((now-start)/dur,1);
+    const e=1-Math.pow(1-t,3);
+    const txt=Math.round(target*e)+suffix;
+    if(el.children.length) el.childNodes[0].textContent=txt;
+    else el.textContent=txt;
+    if(t<1) requestAnimationFrame(run);
+  };
+  requestAnimationFrame(run);
+}
+
+/* ─── KPI TRIGGER ─── */
+const kpiObs=new IntersectionObserver(es=>{
+  if(!es[0].isIntersecting)return;
+  const atras=D.filter(e=>e.delta>0);
+  const onTime=D.filter(e=>e.delta<=0);
+  const maxD=Math.max(...D.map(e=>e.delta));
+  const maxE=D.find(e=>e.delta===maxD);
+  countUp(document.getElementById('k0'),D.length,900);
+  countUp(document.getElementById('k1'),atras.length,900);
+  document.getElementById('k1s').textContent=Math.round(atras.length/D.length*100)+'% do total';
+  (()=>{
+    const el=document.getElementById('k2');
+    const s=performance.now();
+    const run=n=>{
+      const t=Math.min((n-s)/1100,1);
+      const v=Math.round(maxD*(1-Math.pow(1-t,3)));
+      el.innerHTML=`${v}<span style="font-size:1.5rem;opacity:.5"> d</span>`;
+      if(t<1)requestAnimationFrame(run);
+      else document.getElementById('k2s').textContent=`Entrega #${maxE.id} · ${maxE.trans}`;
+    };requestAnimationFrame(run);
+  })();
+  countUp(document.getElementById('k3'),onTime.length,900);
+  document.querySelectorAll('.kpi-card').forEach(c=>c.classList.add('lit'));
+  kpiObs.disconnect();
+},{threshold:.4});
+kpiObs.observe(document.getElementById('kpis'));
+
+/* ─── CUSTOM BAR CHART ─── */
+(()=>{
+  const maxReal=Math.max(...D.map(e=>e.real));
+  const container=document.getElementById('bars-chart');
+  D.forEach(e=>{
+    const prazoW=Math.round(e.prazo/maxReal*100);
+    const realW=Math.round(e.real/maxReal*100);
+    const dClass=e.delta>0?'delta-pos':e.delta<0?'delta-neg':'delta-zero';
+    const sign=e.delta>0?'+':e.delta<0?'':' ';
+    const realCls='bar-fill real'+(e.delta<=0?' ok':'');
+    const row=document.createElement('div');
+    row.className='bar-row';
+    row.innerHTML=`
+      <span class="bar-id">#${e.id}</span>
+      <div class="bar-pair">
+        <div class="bar-track"><div class="bar-fill prazo" data-w="${prazoW}"></div></div>
+        <div class="bar-track"><div class="${realCls}" data-w="${realW}"></div></div>
+        <div class="bar-labels"><span>${e.prazo}d prazo</span><span>${e.real}d real</span></div>
+      </div>
+      <span class="bar-delta ${dClass}">${sign}${e.delta}d</span>
+    `;
+    container.appendChild(row);
+  });
+
+  const barObs=new IntersectionObserver(es=>{
+    if(!es[0].isIntersecting)return;
+    document.querySelectorAll('.bar-fill').forEach((b,i)=>{
+      setTimeout(()=>{b.style.width=b.dataset.w+'%'},i*35);
+    });
+    barObs.disconnect();
+  },{threshold:.3});
+  barObs.observe(container);
+})();
+
+/* ─── RANKING ─── */
+(()=>{
+  const T={};
+  D.forEach(e=>{
+    if(!T[e.trans])T[e.trans]={tot:0,atr:0,dTot:0};
+    T[e.trans].tot++;
+    if(e.delta>0){T[e.trans].atr++;T[e.trans].dTot+=e.delta;}
+  });
+  const list=Object.entries(T)
+    .map(([n,d])=>({n,pct:Math.round(d.atr/d.tot*100),med:d.atr?+(d.dTot/d.atr).toFixed(1):0}))
+    .sort((a,b)=>b.pct-a.pct);
+  const COLS={FlashLog:'#C94F1E',RotaMax:'#C88A2E',ViaCargo:'#4A7C59'};
+  const el=document.getElementById('ranking');
+  list.forEach((t,i)=>{
+    const row=document.createElement('div');
+    row.className='rank-row';
+    row.innerHTML=`
+      <span class="rank-n">0${i+1}</span>
+      <div class="rank-info">
+        <p class="rank-name">${t.n}</p>
+        <div class="rank-track">
+          <div class="rank-fill" data-pct="${t.pct}" style="background:${COLS[t.n]||'#888'}"></div>
+        </div>
+      </div>
+      <span class="rank-pct" style="color:${COLS[t.n]}">${t.pct}%</span>
+    `;
+    el.appendChild(row);
+  });
+  const rObs=new IntersectionObserver(es=>{
+    if(!es[0].isIntersecting)return;
+    document.querySelectorAll('.rank-fill').forEach((f,i)=>{
+      setTimeout(()=>{f.style.width=f.dataset.pct+'%'},i*180);
+    });
+    rObs.disconnect();
+  },{threshold:.5});
+  rObs.observe(el);
+})();
+
+/* ─── MAPA ─── */
+(()=>{
+  const RD={};
+  D.forEach(e=>{
+    if(!RD[e.regiao])RD[e.regiao]={tot:0,atr:0};
+    RD[e.regiao].tot++;if(e.delta>0)RD[e.regiao].atr++;
+  });
+  function crit(r){
+    if(!r)return'none';
+    const p=r.atr/r.tot;
+    if(p>=.75)return'crit';if(p>0)return'watch';return'ok';
+  }
+  const COL={crit:'#C94F1E',watch:'#C88A2E',ok:'#4A7C59',none:'rgba(28,28,30,.07)'};
+  const TC={crit:'#FAF7F2',watch:'#1C1C1E',ok:'#FAF7F2',none:'#6E6E73'};
+  const STROKE={crit:'#9E3C14',watch:'#8A5E10',ok:'#2D6040',none:'rgba(28,28,30,.12)'};
+
+  // Formas simplificadas mas distintas
+  const REGS=[
+    {n:'Norte',     d:'M75,55 L165,35 L285,45 L310,50 L295,155 L230,190 L165,205 L85,175 L60,120 Z',  cx:185,cy:115},
+    {n:'Nordeste',  d:'M285,45 L420,55 L445,80 L440,195 L380,210 L310,205 L295,155 L310,50 Z',        cx:370,cy:130},
+    {n:'Centro-Oeste',d:'M85,175 L165,205 L230,190 L310,205 L330,335 L295,345 L195,350 L110,320 L85,250 Z',cx:210,cy:265},
+    {n:'Sudeste',   d:'M310,205 L380,210 L440,195 L445,230 L420,345 L355,360 L330,335 L310,205 Z',    cx:378,cy:275},
+    {n:'Sul',       d:'M195,350 L295,345 L330,335 L355,360 L345,455 L275,490 L215,470 L185,420 Z',    cx:278,cy:405},
+  ];
+
+  const svg=document.getElementById('mapa-svg');
+  let svgH='';
+  REGS.forEach(r=>{
+    const rd=RD[r.n];const c=crit(rd);
+    const fill=COL[c];const tc=TC[c];const sk=STROKE[c];
+    const pct=rd?Math.round(rd.atr/rd.tot*100):0;
+    svgH+=`
+      <g>
+        <path d="${r.d}" fill="${fill}" stroke="${sk}" stroke-width="1.5" style="transition:opacity .3s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'"/>
+        <text x="${r.cx}" y="${r.cy-7}" text-anchor="middle"
+          font-family="Space Grotesk,sans-serif" font-size="10.5" font-weight="700" fill="${tc}">${r.n}</text>
+        <text x="${r.cx}" y="${r.cy+10}" text-anchor="middle"
+          font-family="Inter,sans-serif" font-size="9.5" fill="${tc}" opacity=".75">
+          ${rd?pct+'% atrasado':'sem dados'}
+        </text>
+      </g>`;
+  });
+  svg.innerHTML=svgH;
+
+  // legend
+  const leg=document.getElementById('mapa-legend');
+  const ORDER=['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'];
+  ORDER.forEach((name,i)=>{
+    const rd=RD[name];const c=crit(rd);
+    const pct=rd?Math.round(rd.atr/rd.tot*100):0;
+    const atrs=rd?rd.atr:0;const tot=rd?rd.tot:0;
+    const label={crit:'Crítico',watch:'Atenção',ok:'Estável',none:'Sem dados'}[c];
+    const div=document.createElement('div');
+    div.className='mapa-legend-item';
+    div.innerHTML=`
+      <span class="mapa-dot" style="background:${COL[c]}"></span>
+      <div style="flex:1">
+        <p class="mapa-legend-name">${name}</p>
+        <p class="mapa-legend-stat">${atrs} de ${tot} entrega(s) atrasada(s) · <b>${label}</b></p>
+        <div class="mapa-legend-bar">
+          <div class="mapa-legend-fill" data-pct="${pct}" style="background:${COL[c]}"></div>
+        </div>
+      </div>
+    `;
+    leg.appendChild(div);
+    setTimeout(()=>div.classList.add('in'),i*110+300);
+  });
+
+  const mObs=new IntersectionObserver(es=>{
+    if(!es[0].isIntersecting)return;
+    document.querySelectorAll('.mapa-legend-fill').forEach((f,i)=>{
+      setTimeout(()=>{f.style.width=f.dataset.pct+'%'},i*120+200);
+    });
+    mObs.disconnect();
+  },{threshold:.3});
+  mObs.observe(leg);
+})();
+
+/* ─── GAUGES ─── */
+(()=>{
+  const T={};
+  D.forEach(e=>{
+    if(!T[e.trans])T[e.trans]={tot:0,atr:0,sumReal:0,sumPrazo:0};
+    T[e.trans].tot++;T[e.trans].sumPrazo+=e.prazo;T[e.trans].sumReal+=e.real;
+    if(e.delta>0)T[e.trans].atr++;
+  });
+  function score(n){
+    const d=T[n];
+    const pA=d.atr/d.tot;
+    const dev=(d.sumReal-d.sumPrazo)/d.sumPrazo;
+    return Math.min(100,Math.round(pA*60+Math.max(0,dev)*40));
+  }
+  const ORDER=['FlashLog','RotaMax','ViaCargo'];
+  const GRAD={
+    FlashLog:['#C94F1E','#9E3C14'],
+    RotaMax:['#E8AC50','#C88A2E'],
+    ViaCargo:['#5E9B70','#4A7C59'],
+  };
+
+  const wrap=document.getElementById('gauge-wrap');
+  ORDER.forEach(name=>{
+    const sc=score(name);
+    const d=T[name];
+    const pct=Math.round(d.atr/d.tot*100);
+    let sLabel,sBg,sFg;
+    if(sc>=70){sLabel='Alerta Crítico';sBg='rgba(201,79,30,.15)';sFg='#E8643A';}
+    else if(sc>=40){sLabel='Atenção';sBg='rgba(200,138,46,.12)';sFg='#C88A2E';}
+    else{sLabel='Operando bem';sBg='rgba(74,124,89,.12)';sFg='#4A7C59';}
+
+    // arc math: semicircle from 180° to 0°
+    // circumference of arc with r=72: π*72 ≈ 226
+    const ARC=226;
+    const offset=ARC-(ARC*sc/100);
+    const [c1,c2]=GRAD[name];
+    const gid=`gg-${name}`;
+
+    const card=document.createElement('div');
+    card.className='gauge-card rv';
+    card.innerHTML=`
+      <p class="gc-name">${name}</p>
+      <p class="gc-sub">${d.atr} de ${d.tot} entregas atrasadas · ${pct}%</p>
+      <svg class="gauge-svg" viewBox="0 0 200 120" width="200" height="120">
+        <defs>
+          <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="${c1}"/>
+            <stop offset="100%" stop-color="${c2}"/>
+          </linearGradient>
+        </defs>
+        <!-- track -->
+        <path d="M18,108 A82,82 0 0,1 182,108"
+          fill="none" stroke="rgba(255,255,255,.07)" stroke-width="14" stroke-linecap="round"/>
+        <!-- fill arc -->
+        <path class="gauge-fill" d="M18,108 A82,82 0 0,1 182,108"
+          fill="none" stroke="url(#${gid})"
+          stroke-dasharray="${ARC}" stroke-dashoffset="${ARC}"
+          data-offset="${offset}"
+          style="transition:stroke-dashoffset 1.6s .2s cubic-bezier(.16,1,.3,1)"/>
+        <!-- needle -->
+        <line class="gauge-needle-line" x1="100" y1="108" x2="100" y2="36"
+          stroke="rgba(245,240,232,.55)" stroke-width="1.5" stroke-linecap="round"
+          data-score="${sc}"
+          style="transform:rotate(-90deg)"/>
+        <circle cx="100" cy="108" r="5" fill="rgba(245,240,232,.6)"/>
+        <circle cx="100" cy="108" r="2.5" fill="${c1}"/>
+      </svg>
+      <p class="gc-score" style="color:${sFg}">${sc}</p>
+      <span class="gc-status" style="background:${sBg};color:${sFg}">${sLabel}</span>
+    `;
+    wrap.appendChild(card);
+  });
+
+  const gObs=new IntersectionObserver(es=>{
+    if(!es[0].isIntersecting)return;
+    document.querySelectorAll('.gauge-fill').forEach(f=>{
+      f.style.strokeDashoffset=f.dataset.offset;
+    });
+    document.querySelectorAll('.gauge-needle-line').forEach(n=>{
+      const sc=parseInt(n.dataset.score);
+      const deg=-90+(sc/100)*180;
+      n.style.transform=`rotate(${deg}deg)`;
+    });
+    gObs.disconnect();
+  },{threshold:.4});
+  gObs.observe(wrap);
+})();
+
+/* ─── TABELA ─── */
+(()=>{
+  let fStatus='all',fTrans=null,sKey='delta',sDir=-1;
+  const BADGE={
+    crit:`<span class="badge b-crit">Crítico</span>`,
+    high:`<span class="badge b-high">Alto risco</span>`,
+    watch:`<span class="badge b-watch">Atenção</span>`,
+    ok:`<span class="badge b-ok">No prazo</span>`,
+  };
+  function render(){
+    let rows=[...D];
+    if(fStatus!=='all') rows=rows.filter(e=>e.status===fStatus);
+    if(fTrans) rows=rows.filter(e=>e.trans===fTrans);
+    rows.sort((a,b)=>typeof a[sKey]==='string'?sDir*(a[sKey].localeCompare(b[sKey])):sDir*(a[sKey]-b[sKey]));
+    const sign=v=>v>0?'+':v<0?'':'';
+    const cls=v=>v>0?'delta-pos':v<0?'delta-neg':'delta-zero';
+    document.getElementById('tbody').innerHTML=rows.map(e=>`
+      <tr>
+        <td class="td-id">#${e.id}</td>
+        <td class="td-trans">${e.trans}</td>
+        <td>${e.regiao}</td>
+        <td style="font-family:'Space Grotesk',sans-serif;font-weight:600">${e.prazo}d</td>
+        <td style="font-family:'Space Grotesk',sans-serif;font-weight:600">${e.real}d</td>
+        <td class="delta-cell ${cls(e.delta)}">${sign(e.delta)}${e.delta}d</td>
+        <td class="delta-cell ${cls(e.pct)}">${sign(e.pct)}${e.pct}%</td>
+        <td>${BADGE[e.status]}</td>
+      </tr>
+    `).join('');
+  }
+  document.querySelectorAll('[data-f]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('[data-f],[data-t]').forEach(x=>x.classList.remove('on','burn'));
+      b.classList.add('on','burn');
+      fStatus=b.dataset.f;fTrans=null;render();
+    });
+  });
+  document.querySelectorAll('[data-t]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('[data-f],[data-t]').forEach(x=>x.classList.remove('on','burn'));
+      b.classList.add('on');
+      fTrans=b.dataset.t;fStatus='all';render();
+    });
+  });
+  document.querySelectorAll('[data-s]').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const k=th.dataset.s;
+      sDir=sKey===k?-sDir:-1;sKey=k;render();
+    });
+  });
+  render();
+})();
+</script>
+</body>
+</html>
